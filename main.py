@@ -24,7 +24,8 @@ collection = db.users
 available_commands = [
     "/start - Սկսել",
     "/help - Ցույց տալ բոլոր հրամանները",
-    "/webapp - Բացել GrayQuizz ծրագիրը"
+    "/webapp - Բացել GrayQuizz ծրագիրը",
+    "/balance - Տեսնել բալանսը"
 ]
 
 
@@ -144,7 +145,7 @@ async def help_command(message: types.Message):
 async def get_balance(message: types.Message):
     user = await collection.find_one({"id": message.from_user.id})
     if user:
-        await message.answer(f"Հարգելի {user["first_name"]}, Ձեր հաշվի վրա տվյալ պահին կա: {user['balance']} FMM")
+        await message.answer(f'Հարգելի {user["first_name"]}, Ձեր հաշվի վրա տվյալ պահին կա: {user["balance"]} FMM')
     else:
         await message.answer("User not found. Please use /start to register.")
 
