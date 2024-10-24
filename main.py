@@ -46,7 +46,6 @@ async def get_user_photo(user_id):
 
 # Command handler for /start
 @dp.message(Command(commands=['start']))
-@dp.message(Command(commands=['start']))
 async def start(message: types.Message):
     last_name = message.from_user.last_name if message.from_user.last_name is not None else ''
     await message.answer(f"Ողջույն! Օգտագործեք /help որպեսզի տեսնեք բոլոր հրամաննները. \nid: {message.from_user.id}\nԱնուն Ազգանուն: {message.from_user.first_name} {last_name}\nՕգտվողի անուն: @{message.from_user.username}")
