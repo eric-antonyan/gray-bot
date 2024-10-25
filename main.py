@@ -199,7 +199,7 @@ async def webapp_command(message: types.Message):
     button = InlineKeyboardButton(text="Բացել խաղը", web_app=web_app)
     keyboard = InlineKeyboardMarkup(inline_keyboard=[[button]])
 
-    bot_link_button = InlineKeyboardButton(text="Բացել bot-ը", url="@GrayQuizz_bot")
+    bot_link_button = InlineKeyboardButton(text="Բացել bot-ը", url="https://web.telegram.org/a/#7943946022")
     bot_link_keyboard = InlineKeyboardMarkup(inline_keyboard=[[bot_link_button]])
 
     try:
