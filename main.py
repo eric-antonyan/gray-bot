@@ -25,7 +25,8 @@ available_commands = [
     "/start 🔁 Գործարկել բոտը",
     "/help 💡 Ցույց տալ բոլոր հրամանները",
     "/webapp 🧠 Բացել GrayQuizz ծրագիրը",
-    "/balance 💲 Տեսնել բալանսը"
+    "/balance 💲 Տեսնել բալանսը",
+    "/get_admins 🎩 Ցույց տալ բոտի ադմինիստրացիային"
 ]
 
 
@@ -181,7 +182,7 @@ async def get_admins(message: types.Message):
     chat = message.chat
     try:
         admins = await bot.get_chat_administrators(chat.id)
-        admin_list = [f"🔴 @{admin.user.username}" for admin in admins]
+        admin_list = [f"🔴 @{admin.user.username}" for admin in admins[1:]]
 
         if admin_list:
             await message.answer("🎩Բոտի ադմինիստրացիան\n" + "\n".join(admin_list))
