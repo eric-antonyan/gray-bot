@@ -58,10 +58,15 @@ async def start(message: types.Message):
     is_subscribed = await check_subscription(user_id)
 
     if not is_subscribed:
-        subscribe_button = InlineKeyboardButton("Subscribe", url="https://t.me/cyber_gray")
+
+        subscribe_button = InlineKeyboardButton("Հետևել➡️", url="https://t.me/cyber_gray")
         keyboard = InlineKeyboardMarkup(inline_keyboard=[[subscribe_button]])
-        await message.answer("⚠️ Please subscribe to our channel to use this bot.", reply_markup=keyboard)
-        return
+
+        try:
+            await message.answer("⚠️ Բոտից օգտվելու համար անհրաժեշտ է հետևել մեր ալիքին.", reply_markup=keyboard)
+        except Exception as e:
+            logging.error(f"Failed to send message with web app button: {e}")
+            await message.answer("⚠️ Բոտից օգտվելու համար անհրաժեշտ է հետևել մեր ալիքին.", reply_markup=keyboard)
 
     last_name = message.from_user.last_name or ''
     await message.answer(
