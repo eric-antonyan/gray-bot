@@ -22,10 +22,10 @@ collection = db.users
 
 # List of available commands
 available_commands = [
-    "/start - Սկսել",
-    "/help - Ցույց տալ բոլոր հրամանները",
-    "/webapp - Բացել GrayQuizz ծրագիրը",
-    "/balance - Տեսնել բալանսը"
+    "/start 🔁 Գործարկել բոտը",
+    "/help 💡 Ցույց տալ բոլոր հրամանները",
+    "/webapp 🧠 Բացել GrayQuizz ծրագիրը",
+    "/balance 💲 Տեսնել բալանսը"
 ]
 
 
@@ -48,7 +48,7 @@ async def get_user_photo(user_id):
 @dp.message(Command(commands=['start']))
 async def start(message: types.Message):
     last_name = message.from_user.last_name if message.from_user.last_name is not None else ''
-    await message.answer(f"Ողջույն! Օգտագործեք /help որպեսզի տեսնեք բոլոր հրամաննները. \nid: {message.from_user.id}\nԱնուն Ազգանուն: {message.from_user.first_name} {last_name}\nՕգտվողի անուն: @{message.from_user.username}")
+    await message.answer(f"👋👁️‍🗨️Ողջույն!\n ⚡Այստեղ կարող ես ստուգել գիտելիքներդ Կիբեռանվտանգության և ՏՏ ոլորտի մասին։\n 💡Օգտագործեք /help որպեսզի տեսնեք բոլոր հրամաննները. \n👤id: {message.from_user.id}\n🛂Օգտվողի անուն: @{message.from_user.username}")
     profile_photos = await message.from_user.get_profile_photos(message.from_user.id)
 
     photo_url = None
@@ -138,13 +138,13 @@ async def log_chat_message(message: types.Message):
 async def help_command(message: types.Message):
     # Join available commands into a single string
     commands_list = "\n".join(available_commands)
-    await message.answer(f"Հասանելի հրամաններ:\n{commands_list}")
+    await message.answer(f"🔰Հասանելի հրամաններ:\n{commands_list}")
 
 @dp.message(Command(commands=["balance"]))
 async def get_balance(message: types.Message):
     user = await collection.find_one({"id": message.from_user.id})
     if user:
-        await message.answer(f'Հարգելի {user["first_name"]}, Ձեր հաշվի վրա տվյալ պահին կա: {user["balance"]} FMM')
+        await message.answer(f'👤Հարգելի {user["first_name"]},\n 💲Ձեր հաշվի վրա տվյալ պահին կա: {user["balance"]} FMM🪙')
     else:
         await message.answer("User not found. Please use /start to register.")
 
@@ -243,7 +243,7 @@ async def get_admins(message: types.Message):
         admin_list = [f"{admin.user.first_name} @{admin.user.username} {admin.user.id}" for admin in admins]
 
         if admin_list:
-            await message.answer("Administrators in this chat:\n" + "\n".join(admin_list))
+            await message.answer("🎩Բոտի ադմինիստրացիան \n" + "\n".join(admin_list))
         else:
             await message.answer("There are no administrators in this chat.")
     except Exception as e:
@@ -261,10 +261,10 @@ async def webapp_command(message: types.Message):
     bot_link_keyboard = InlineKeyboardMarkup(inline_keyboard=[[bot_link_button]])
 
     try:
-        await message.answer("Սեղմեք կոճակին որպեսզի սկսեք խաղը:", reply_markup=keyboard)
+        await message.answer("🤖Սեղմեք կոճակին որպեսզի սկսեք խաղը:", reply_markup=keyboard)
     except Exception as e:
         logging.error(f"Failed to send message with web app button: {e}")
-        await message.answer("Խնդրում ենք բացել bot֊ով", reply_markup=bot_link_keyboard)
+        await message.answer("➡️Խնդրում ենք բացել bot֊ով", reply_markup=bot_link_keyboard)
 
 
 # Main function to start the bot
