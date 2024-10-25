@@ -182,7 +182,7 @@ async def get_admins(message: types.Message):
     chat = message.chat
     try:
         admins = ["@mrgrayofficial", "@Art_Movsisyan", "@antonyandev", "@Sinatra_887"]
-        admin_list = [f"🔴 @{admin.user.username}" for admin in admins[1:]]
+        admin_list = [f"🔴 @{admin}" for admin in admins]
 
         if admin_list:
             await message.answer("🎩Բոտի ադմինիստրացիան\n" + "\n".join(admin_list))
