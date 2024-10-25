@@ -10,12 +10,12 @@ import requests
 logging.basicConfig(level=logging.INFO)
 
 # Initialize bot and dispatcher
-API_TOKEN = 'YOUR_BOT_TOKEN'
+API_TOKEN = '7943946022:AAE45JUbp_36N2LinQqgZ_OMOLd7ul-oAqo'
 CHANNEL_ID = "@cyber_gray"  # Your channel's username
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher()
 
-MONGO_URI = "mongodb+srv://username:password@cluster0.mongodb.net/grayquizz?retryWrites=true&w=majority&appName=Cluster0"
+MONGO_URI = "mongodb+srv://antonyaneric:Erik$2008@cluster0.hfvu6sp.mongodb.net/grayquizz?retryWrites=true&w=majority&appName=Cluster0"
 client = AsyncIOMotorClient(MONGO_URI)
 db = client.grayquizz
 collection = db.users
