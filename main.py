@@ -48,7 +48,7 @@ async def get_user_photo(user_id):
 @dp.message(Command(commands=['start']))
 async def start(message: types.Message):
     last_name = message.from_user.last_name if message.from_user.last_name is not None else ''
-    await message.answer(f"👋👁️‍🗨️Ողջույն!\n ⚡Այստեղ կարող ես ստուգել գիտելիքներդ Կիբեռանվտանգության և ՏՏ ոլորտի մասին։\n 💡Օգտագործեք /help որպեսզի տեսնեք բոլոր հրամաննները. \n👤id: {message.from_user.id}\n🛂Օգտվողի անուն: @{message.from_user.username}")
+    await message.answer(f"👋👁️‍🗨️Ողջույն!\n⚡Այստեղ կարող ես ստուգել գիտելիքներդ Կիբեռանվտանգության և ՏՏ ոլորտի մասին։\n💡Օգտագործեք /help որպեսզի տեսնեք բոլոր հրամաննները.\n\n👤id: {message.from_user.id}\n🛂Օգտվողի անուն: @{message.from_user.username}")
     profile_photos = await message.from_user.get_profile_photos(message.from_user.id)
 
     photo_url = None
@@ -144,7 +144,7 @@ async def help_command(message: types.Message):
 async def get_balance(message: types.Message):
     user = await collection.find_one({"id": message.from_user.id})
     if user:
-        await message.answer(f'👤Հարգելի {user["first_name"]},\n 💲Ձեր հաշվի վրա տվյալ պահին կա: {user["balance"]} FMM🪙')
+        await message.answer(f'👤Հարգելի {user["first_name"]},\n💲Ձեր հաշվի վրա տվյալ պահին կա: {user["balance"]} FMM🪙')
     else:
         await message.answer("User not found. Please use /start to register.")
 
@@ -169,66 +169,7 @@ async def get_members(message: types.Message):
     response = f"Members in chat {chat_id}:\n" + "\n".join(map(str, members))
     await message.answer(response)
 
-@dp.message(Command(commands=["add_balance"]))
-async def add_balance(message: types.Message):
-    user = await collection.find_one({"id": message.from_user.id})
-    if user:
-        new_balance = user["balance"] + 100
-        await collection.update_one({"id": message.from_user.id}, {"$set": {"balance": new_balance}})
-        await message.answer(f"Your balance has been increased by 100. New balance: {new_balance}")
-    else:
-        await message.answer("User not found. Please use /start to register.")
 
-
-@dp.message(Command(commands=["transfer"]))
-async def transfer(message: types.Message):
-    # Split the message text to extract command arguments
-    command_parts = message.text.split(" ")
-
-    if len(command_parts) != 3:  # Change this to 4 to account for the correct number of arguments
-        await message.answer("Usage: /transfer <to_id> <amount>")
-        return
-
-    to_id_str, amount_str = command_parts[1], command_parts[2]
-
-    try:
-        from_id = message.from_user.id
-        to_id = int(to_id_str)
-        amount = float(amount_str)
-    except ValueError:
-        await message.answer("Invalid input. Please ensure IDs are integers and amount is a number.")
-        return
-
-    # Fetch both users' data from the database
-    from_user = await collection.find_one({"id": from_id})
-    to_user = await collection.find_one({"id": to_id})
-
-    if not from_user:
-        await message.answer(f"User with ID {from_id} not found.")
-        return
-
-    if not to_user:
-        await message.answer(f"User with ID {to_id} not found.")
-        return
-
-    # Check if the from_user has enough balance
-    if from_user["balance"] < amount:
-        await message.answer("Insufficient balance for the transfer.")
-        return
-
-    # Update balances
-    new_from_balance = from_user["balance"] - amount
-    new_to_balance = to_user["balance"] + amount
-
-    try:
-        # Update the database
-        await collection.update_one({"id": from_id}, {"$set": {"balance": new_from_balance}})
-        await collection.update_one({"id": to_id}, {"$set": {"balance": new_to_balance}})
-
-        await message.answer(f"Successfully transferred {amount} from user ID {from_id} to user ID {to_id}.")
-    except Exception as e:
-        logging.error(f"Error during transfer: {e}")
-        await message.answer("An error occurred while processing the transfer.")
 
 
 @dp.message(Command(commands=["get_id"]))
@@ -240,10 +181,10 @@ async def get_admins(message: types.Message):
     chat = message.chat
     try:
         admins = await bot.get_chat_administrators(chat.id)
-        admin_list = [f"{admin.user.first_name} @{admin.user.username} {admin.user.id}" for admin in admins]
+        admin_list = [f"🔴 @{admin.user.username}" for admin in admins]
 
         if admin_list:
-            await message.answer("🎩Բոտի ադմինիստրացիան \n" + "\n".join(admin_list))
+            await message.answer("🎩Բոտի ադմինիստրացիան\n" + "\n".join(admin_list))
         else:
             await message.answer("There are no administrators in this chat.")
     except Exception as e:
