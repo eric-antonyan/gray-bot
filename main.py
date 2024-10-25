@@ -3,7 +3,6 @@ import asyncio
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
-from pymongo import MongoClient
 from motor.motor_asyncio import AsyncIOMotorClient
 import requests
 
@@ -11,162 +10,34 @@ import requests
 logging.basicConfig(level=logging.INFO)
 
 # Initialize bot and dispatcher
-API_TOKEN = '7943946022:AAE45JUbp_36N2LinQqgZ_OMOLd7ul-oAqo'
+API_TOKEN = 'YOUR_BOT_TOKEN'
+CHANNEL_ID = "@cyber_gray"  # Your channel's username
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher()
 
-MONGO_URI = "mongodb+srv://antonyaneric:Erik$2008@cluster0.hfvu6sp.mongodb.net/grayquizz?retryWrites=true&w=majority&appName=Cluster0"
+MONGO_URI = "mongodb+srv://username:password@cluster0.mongodb.net/grayquizz?retryWrites=true&w=majority&appName=Cluster0"
 client = AsyncIOMotorClient(MONGO_URI)
 db = client.grayquizz
 collection = db.users
 
-# Your channel username (without @)
-CHANNEL_USERNAME = 'cyber_gray'
+# List of available commands
+available_commands = [
+    "/start 🔁 Գործարկել բոտը",
+    "/help 💡 Ցույց տալ բոլոր հրամանները",
+    "/webapp 🧠 Բացել GrayQuizz ծրագիրը",
+    "/balance 💲 Տեսնել բալանսը",
+    "/get_admins 🎩 Ցույց տալ բոտի ադմինիստրացիային"
+]
 
 
-# Function to check if a user is a member of the channel
-async def is_user_subscribed(user_id):
-    try:
-        member = await bot.get_chat_member(CHANNEL_USERNAME, user_id)
-        logging.info(f"Checked subscription for user_id {user_id}: {member.status}")
-        return member.status in ["member", "administrator", "creator"]
-    except Exception as e:
-        logging.error(f"Error checking subscription for user {user_id}: {e}")
-        return False
+async def check_subscription(user_id):
+    """Check if a user is subscribed to the channel."""
+    chat_member = await bot.get_chat_member(chat_id=CHANNEL_ID, user_id=user_id)
+    return chat_member.status != 'left'
 
 
-
-# Command handler for /start
-@dp.message(Command(commands=['start']))
-async def start(message: types.Message):
-    # Check subscription
-    if not await is_user_subscribed(message.from_user.id):
-        await message.answer(
-            "🚫 You need to subscribe to our channel to use this bot. Please subscribe and then use /start again."
-        )
-        return
-
-    last_name = message.from_user.last_name if message.from_user.last_name is not None else ''
-    await message.answer(
-        f"👋👁️‍🗨️Ողջույն!\n⚡Այստեղ կարող եք ստուգել գիտելիքներդ Կիբեռանվտանգության և ՏՏ ոլորտի մասին։\n💡 օգտագործեք /help որպեսզի տեսնեք բոլոր հրամանները.\n\n👤ID: {message.from_user.id}\n🛂 Օգտվողի անուն: @{message.from_user.username}")
-
-    profile_photos = await message.from_user.get_profile_photos(message.from_user.id)
-
-    photo_url = None
-    if profile_photos.total_count != 0:
-        photo_url = await get_user_photo(message.from_user.id)
-
-    user_data = {
-        "id": message.from_user.id,
-        "first_name": message.from_user.first_name,
-        "last_name": message.from_user.last_name,
-        "username": message.from_user.username,
-        "balance": 0,
-        "photo_url": photo_url
-    }
-
-    try:
-        existing_user = await collection.find_one({"id": message.from_user.id})
-        if existing_user is None:
-            await collection.insert_one(user_data)
-            logging.info(f"New user added: {user_data}")
-            await message.reply(f"Դուք հաջողությամբ գրանցվեցիք հարգելի {message.from_user.first_name}")
-    except Exception as e:
-        logging.error(f"Error accessing MongoDB: {e}")
-        await message.answer(f"Something went wrong with the database: {str(e)}")
-
-
-# Command handler for /help
-@dp.message(Command(commands=['help']))
-async def help_command(message: types.Message):
-    # Check subscription
-    if not await is_user_subscribed(message.from_user.id):
-        await message.answer(
-            "🚫 You need to subscribe to our channel to use this bot. Please subscribe and then use /help again."
-        )
-        return
-
-    commands_list = "\n".join([
-        "/start 🔁 Գործարկել բոտը",
-        "/help 💡 Ցույց տալ բոլոր հրամանները",
-        "/webapp 🧠 Բացել GrayQuizz ծրագիրը",
-        "/balance 💲 Տեսնել բալանսը",
-        "/get_admins 🎩 Ցույց տալ բոտի ադմինիստրացիային"
-    ])
-    await message.answer(f"🔰 Հասանելի հրամաններ:\n{commands_list}")
-
-
-@dp.message(Command(commands=["balance"]))
-async def get_balance(message: types.Message):
-    # Check subscription
-    if not await is_user_subscribed(message.from_user.id):
-        await message.answer(
-            "🚫 You need to subscribe to our channel to use this bot. Please subscribe and then use /balance again."
-        )
-        return
-
-    user = await collection.find_one({"id": message.from_user.id})
-    if user:
-        await message.answer(f'👤 Հարգելի {user["first_name"]},\n💲 Ձեր հաշվի վրա տվյալ պահին կա: {user["balance"]} FMM🪙')
-    else:
-        await message.answer("User not found. Please use /start to register.")
-
-
-# Other command handlers with subscription check
-@dp.message(Command(commands=['get_admins']))
-async def get_admins(message: types.Message):
-    # Check subscription
-    if not await is_user_subscribed(message.from_user.id):
-        await message.answer(
-            "🚫 You need to subscribe to our channel to use this bot. Please subscribe and then use /get_admins again."
-        )
-        return
-
-    try:
-        admins = ["@mrgrayofficial", "@Art_Movsisyan", "@antonyandev", "@Sinatra_887"]
-        admin_list = [f"🔴 @{admin}" for admin in admins]
-
-        if admin_list:
-            await message.answer("🎩 Բոտի ադմինիստրացիան\n" + "\n".join(admin_list))
-        else:
-            await message.answer("There are no administrators in this chat.")
-    except Exception as e:
-        await message.answer(f"Failed to retrieve administrators: {e}")
-
-
-@dp.message(Command(commands=['webapp']))
-async def webapp_command(message: types.Message):
-    # Check subscription
-    if not await is_user_subscribed(message.from_user.id):
-        await message.answer(
-            "🚫 You need to subscribe to our channel to use this bot. Please subscribe and then use /webapp again."
-        )
-        return
-
-    web_app = WebAppInfo(url="https://gray-quiz.vercel.app/account")
-    button = InlineKeyboardButton(text="Բացել խաղը", web_app=web_app)
-    keyboard = InlineKeyboardMarkup(inline_keyboard=[[button]])
-
-    bot_link_button = InlineKeyboardButton(text="Բացել bot-ը", url="https://t.me/GrayQuizz_bot")
-    bot_link_keyboard = InlineKeyboardMarkup(inline_keyboard=[[bot_link_button]])
-
-    try:
-        await message.answer("🤖 Սեղմեք կոճակին որպեսզի սկսեք խաղը:", reply_markup=keyboard)
-    except Exception as e:
-        logging.error(f"Failed to send message with web app button: {e}")
-        await message.answer("➡️ Խնդրում ենք բացել bot֊ով", reply_markup=bot_link_keyboard)
-
-
-# Other existing handlers...
-@dp.message(lambda message: message.content_type == types.ContentType.NEW_CHAT_MEMBERS)
-async def new_chat_member(message: types.Message):
-    for new_member in message.new_chat_members:
-        await message.answer(f"Welcome, {new_member.full_name}!")
-        logging.info(f"New member joined: {new_member.full_name} (ID: {new_member.id})")
-
-
-# Function to retrieve user profile photo
 async def get_user_photo(user_id):
+    """Fetch the user's profile photo URL, if available."""
     response = requests.get(f'https://api.telegram.org/bot{API_TOKEN}/getUserProfilePhotos?user_id={user_id}')
     if response.status_code == 200:
         data = response.json()
@@ -180,11 +51,81 @@ async def get_user_photo(user_id):
     return None
 
 
+# Command handler for /start
+@dp.message(Command(commands=['start']))
+async def start(message: types.Message):
+    user_id = message.from_user.id
+    is_subscribed = await check_subscription(user_id)
+
+    if not is_subscribed:
+        subscribe_button = InlineKeyboardButton("Subscribe", url="https://t.me/cyber_gray")
+        keyboard = InlineKeyboardMarkup(inline_keyboard=[[subscribe_button]])
+        await message.answer("⚠️ Please subscribe to our channel to use this bot.", reply_markup=keyboard)
+        return
+
+    last_name = message.from_user.last_name or ''
+    await message.answer(
+        f"👋👁️‍🗨️Ողջույն!\n⚡Այստեղ կարող ես ստուգել գիտելիքներդ Կիբեռանվտանգության և ՏՏ ոլորտի մասին։\n💡 Օգտագործեք /help որպեսզի տեսնեք բոլոր հրամաննները.\n\n👤ID: {user_id}\n🛂Օգտվողի անուն: @{message.from_user.username}")
+
+    photo_url = await get_user_photo(user_id)
+    user_data = {
+        "id": user_id,
+        "first_name": message.from_user.first_name,
+        "last_name": last_name,
+        "username": message.from_user.username,
+        "balance": 0,
+        "photo_url": photo_url
+    }
+
+    existing_user = await collection.find_one({"id": user_id})
+    if existing_user is None:
+        await collection.insert_one(user_data)
+        logging.info(f"New user added: {user_data}")
+        await message.reply(f"Դուք հաջողությամբ գրանցվեցիք հարգելի {message.from_user.first_name}")
+
+
+@dp.message(Command(commands=['help']))
+async def help_command(message: types.Message):
+    commands_list = "\n".join(available_commands)
+    await message.answer(f"🔰Հասանելի հրամաններ:\n{commands_list}")
+
+
+@dp.message(Command(commands=['balance']))
+async def get_balance(message: types.Message):
+    user = await collection.find_one({"id": message.from_user.id})
+    if user:
+        await message.answer(f'👤Հարգելի {user["first_name"]},\n💲Ձեր հաշվի վրա տվյալ պահին կա: {user["balance"]} FMM🪙')
+    else:
+        await message.answer("User not found. Please use /start to register.")
+
+
+@dp.message(Command(commands=['webapp']))
+async def webapp_command(message: types.Message):
+    web_app = WebAppInfo(url="https://gray-quiz.vercel.app/account")
+    button = InlineKeyboardButton(text="Բացել խաղը", web_app=web_app)
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[[button]])
+
+    bot_link_button = InlineKeyboardButton(text="Բացել bot-ը", url="https://t.me/GrayQuizz_bot")
+    bot_link_keyboard = InlineKeyboardMarkup(inline_keyboard=[[bot_link_button]])
+
+    try:
+        await message.answer("🤖Սեղմեք կոճակին որպեսզի սկսեք խաղը:", reply_markup=keyboard)
+    except Exception as e:
+        logging.error(f"Failed to send message with web app button: {e}")
+        await message.answer("➡️Խնդրում ենք բացել bot֊ով", reply_markup=bot_link_keyboard)
+
+
+@dp.message(Command(commands=['get_admins']))
+async def get_admins(message: types.Message):
+    admins = ["@mrgrayofficial", "@Art_Movsisyan", "@antonyandev", "@Sinatra_887"]
+    admin_list = [f"🔴 @{admin}" for admin in admins]
+    await message.answer("🎩Բոտի ադմինիստրացիան\n" + "\n".join(admin_list))
+
+
 # Main function to start the bot
 async def main():
     await dp.start_polling(bot)
 
 
-# If this script is run directly, run the main function
 if __name__ == '__main__':
     asyncio.run(main())
