@@ -49,7 +49,7 @@ async def get_user_photo(user_id):
 @dp.message(Command(commands=['start']))
 async def start(message: types.Message):
     last_name = message.from_user.last_name if message.from_user.last_name is not None else ''
-    await message.answer(f"👋👁️‍🗨️Ողջույն!\n⚡Այստեղ կարող ես ստուգել գիտելիքներդ Կիբեռանվտանգության և ՏՏ ոլորտի մասին։\n💡Օգտագործեք /help որպեսզի տեսնեք բոլոր հրամաննները.\n\n👤id: {message.from_user.id}\n🛂Օգտվողի անուն: @{message.from_user.username}")
+    await message.answer(f"👋👁️‍🗨️Ողջույն!\n⚡Այստեղ կարող ես ստուգել գիտելիքներդ Կիբեռանվտանգության և ՏՏ ոլորտի մասին։\n💡Օգտագործեք /help որպեսզի տեսնեք բոլոր հրամաննները.\n\n👤ID: {message.from_user.id}\n🛂Օգտվողի անուն: @{message.from_user.username}")
     profile_photos = await message.from_user.get_profile_photos(message.from_user.id)
 
     photo_url = None
