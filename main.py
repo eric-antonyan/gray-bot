@@ -120,11 +120,8 @@ async def webapp_command(message: types.Message):
     bot_link_button = InlineKeyboardButton(text="Բացել bot-ը", url="https://t.me/GrayQuizz_bot")
     bot_link_keyboard = InlineKeyboardMarkup(inline_keyboard=[[bot_link_button]])
 
-    try:
-        await message.answer("🤖Սեղմեք կոճակին որպեսզի սկսեք խաղը:", reply_markup=keyboard)
-    except Exception as e:
-        logging.error(f"Failed to send message with web app button: {e}")
-        await message.answer("➡️Խնդրում ենք բացել bot֊ով", reply_markup=bot_link_keyboard)
+
+    await message.answer("➡️Խնդրում ենք բացել bot֊ով", reply_markup=bot_link_keyboard)
 
 
 @dp.message(Command(commands=['get_admins']))
