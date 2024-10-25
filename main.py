@@ -253,7 +253,7 @@ async def get_admins(message: types.Message):
 # Command handler for /webapp (example)
 @dp.message(Command(commands=['webapp']))
 async def webapp_command(message: types.Message):
-    web_app = WebAppInfo(url="https://gray-quiz.vercel.app/quiz")
+    web_app = WebAppInfo(url="https://gray-quiz.vercel.app/account")
     button = InlineKeyboardButton(text="Բացել խաղը", web_app=web_app)
     keyboard = InlineKeyboardMarkup(inline_keyboard=[[button]])
 
