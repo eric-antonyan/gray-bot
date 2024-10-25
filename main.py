@@ -209,6 +209,7 @@ async def webapp_command(message: types.Message):
         await message.answer("➡️Խնդրում ենք բացել bot֊ով", reply_markup=bot_link_keyboard)
 
 
+
 # Main function to start the bot
 async def main():
     # Start polling
