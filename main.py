@@ -161,7 +161,7 @@ async def get_admins(message: types.Message):
 
     else:
         admins = ["@mrgrayofficial", "@Art_Movsisyan", "@antonyandev", "@Sinatra_887"]
-        admin_list = [f"🔴 @{admin}" for admin in admins]
+        admin_list = [f"🔴 {admin}" for admin in admins]
         await message.answer("🎩Բոտի ադմինիստրացիան\n" + "\n".join(admin_list))
 
 
