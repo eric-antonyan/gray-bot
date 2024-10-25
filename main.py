@@ -71,29 +71,29 @@ async def start(message: types.Message):
             logging.error(f"Failed to send message with web app button: {e}")
             await message.answer("⚠️ Բոտից օգտվելու համար անհրաժեշտ է հետևել մեր ալիքին.", reply_markup=channel_link_keyboard)
 
+    else:
 
 
 
+        last_name = message.from_user.last_name or ''
+        await message.answer(
+            f"👋👁️‍🗨️Ողջույն!\n⚡Այստեղ կարող ես ստուգել գիտելիքներդ Կիբեռանվտանգության և ՏՏ ոլորտի մասին։\n💡 Օգտագործեք /help որպեսզի տեսնեք բոլոր հրամաննները.\n\n👤ID: {user_id}\n🛂Օգտվողի անուն: @{message.from_user.username}")
 
-    last_name = message.from_user.last_name or ''
-    await message.answer(
-        f"👋👁️‍🗨️Ողջույն!\n⚡Այստեղ կարող ես ստուգել գիտելիքներդ Կիբեռանվտանգության և ՏՏ ոլորտի մասին։\n💡 Օգտագործեք /help որպեսզի տեսնեք բոլոր հրամաննները.\n\n👤ID: {user_id}\n🛂Օգտվողի անուն: @{message.from_user.username}")
+        photo_url = await get_user_photo(user_id)
+        user_data = {
+            "id": user_id,
+            "first_name": message.from_user.first_name,
+            "last_name": last_name,
+            "username": message.from_user.username,
+            "balance": 0,
+            "photo_url": photo_url
+        }
 
-    photo_url = await get_user_photo(user_id)
-    user_data = {
-        "id": user_id,
-        "first_name": message.from_user.first_name,
-        "last_name": last_name,
-        "username": message.from_user.username,
-        "balance": 0,
-        "photo_url": photo_url
-    }
-
-    existing_user = await collection.find_one({"id": user_id})
-    if existing_user is None:
-        await collection.insert_one(user_data)
-        logging.info(f"New user added: {user_data}")
-        await message.reply(f"Դուք հաջողությամբ գրանցվեցիք հարգելի {message.from_user.first_name}")
+        existing_user = await collection.find_one({"id": user_id})
+        if existing_user is None:
+            await collection.insert_one(user_data)
+            logging.info(f"New user added: {user_data}")
+            await message.reply(f"Դուք հաջողությամբ գրանցվեցիք հարգելի {message.from_user.first_name}")
 
 
 @dp.message(Command(commands=['help']))
