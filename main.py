@@ -181,7 +181,7 @@ async def get_chat_id(message: types.Message):
 async def get_admins(message: types.Message):
     chat = message.chat
     try:
-        admins = await bot.get_chat_administrators(chat.id)
+        admins = ["@mrgrayofficial", "@Art_Movsisyan", "@antonyandev", "@Sinatra_887"]
         admin_list = [f"🔴 @{admin.user.username}" for admin in admins[1:]]
 
         if admin_list:
@@ -199,7 +199,7 @@ async def webapp_command(message: types.Message):
     button = InlineKeyboardButton(text="Բացել խաղը", web_app=web_app)
     keyboard = InlineKeyboardMarkup(inline_keyboard=[[button]])
 
-    bot_link_button = InlineKeyboardButton(text="Բացել bot-ը", url="https://web.telegram.org/a/#7943946022")
+    bot_link_button = InlineKeyboardButton(text="Բացել bot-ը", url="https://t.me/GrayQuizz_bot")
     bot_link_keyboard = InlineKeyboardMarkup(inline_keyboard=[[bot_link_button]])
 
     try:
