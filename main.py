@@ -35,9 +35,21 @@ async def check_subscription(user_id):
     chat_member = await bot.get_chat_member(chat_id=CHANNEL_ID, user_id=user_id)
     return chat_member.status != 'left'
 
+async def need_subscribe(message: types.Message):
+    channel_app = WebAppInfo(url="https://t.me/cyber_gray")
+    button = InlineKeyboardButton(text="Հետևել➡️", web_app=channel_app)
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[[button]])
 
+    channel_link_button = InlineKeyboardButton(text="Հետևել➡️", url="https://t.me/cyber_gray")
+    channel_link_keyboard = InlineKeyboardMarkup(inline_keyboard=[[channel_link_button]])
+
+    try:
+        await message.answer("⚠️ Բոտից օգտվելու համար անհրաժեշտ է հետևել մեր ալիքին.", reply_markup=keyboard)
+    except Exception as e:
+        logging.error(f"Failed to send message with web app button: {e}")
+        await message.answer("⚠️ Բոտից օգտվելու համար անհրաժեշտ է հետևել մեր ալիքին.",reply_markup=channel_link_keyboard)
 async def get_user_photo(user_id):
-    """Fetch the user's profile photo URL, if available."""
+
     response = requests.get(f'https://api.telegram.org/bot{API_TOKEN}/getUserProfilePhotos?user_id={user_id}')
     if response.status_code == 200:
         data = response.json()
@@ -58,18 +70,7 @@ async def start(message: types.Message):
     is_subscribed = await check_subscription(user_id)
 
     if not is_subscribed:
-        channel_app = WebAppInfo(url="https://t.me/cyber_gray")
-        button = InlineKeyboardButton(text="Հետևել➡️", web_app=channel_app)
-        keyboard = InlineKeyboardMarkup(inline_keyboard=[[button]])
-
-        channel_link_button = InlineKeyboardButton(text="Հետևել➡️", url="https://t.me/cyber_gray")
-        channel_link_keyboard = InlineKeyboardMarkup(inline_keyboard=[[channel_link_button]])
-
-        try:
-            await message.answer("⚠️ Բոտից օգտվելու համար անհրաժեշտ է հետևել մեր ալիքին.", reply_markup=keyboard)
-        except Exception as e:
-            logging.error(f"Failed to send message with web app button: {e}")
-            await message.answer("⚠️ Բոտից օգտվելու համար անհրաժեշտ է հետևել մեր ալիքին.", reply_markup=channel_link_keyboard)
+        need_subscribe()
     else:
         last_name = message.from_user.last_name or ''
         await message.answer(
@@ -98,19 +99,7 @@ async def help_command(message: types.Message):
     is_subscribed = await check_subscription(user_id)
 
     if not is_subscribed:
-        channel_app = WebAppInfo(url="https://t.me/cyber_gray")
-        button = InlineKeyboardButton(text="Հետևել➡️", web_app=channel_app)
-        keyboard = InlineKeyboardMarkup(inline_keyboard=[[button]])
-
-        channel_link_button = InlineKeyboardButton(text="Հետևել➡️", url="https://t.me/cyber_gray")
-        channel_link_keyboard = InlineKeyboardMarkup(inline_keyboard=[[channel_link_button]])
-
-        try:
-            await message.answer("⚠️ Բոտից օգտվելու համար անհրաժեշտ է հետևել մեր ալիքին.", reply_markup=keyboard)
-        except Exception as e:
-            logging.error(f"Failed to send message with web app button: {e}")
-            await message.answer("⚠️ Բոտից օգտվելու համար անհրաժեշտ է հետևել մեր ալիքին.", reply_markup=channel_link_keyboard)
-
+        need_subscribe()
     else:
         commands_list = "\n".join(available_commands)
         await message.answer(f"🔰Հասանելի հրամաններ:\n{commands_list}")
@@ -122,18 +111,7 @@ async def get_balance(message: types.Message):
     is_subscribed = await check_subscription(user_id)
 
     if not is_subscribed:
-        channel_app = WebAppInfo(url="https://t.me/cyber_gray")
-        button = InlineKeyboardButton(text="Հետևել➡️", web_app=channel_app)
-        keyboard = InlineKeyboardMarkup(inline_keyboard=[[button]])
-
-        channel_link_button = InlineKeyboardButton(text="Հետևել➡️", url="https://t.me/cyber_gray")
-        channel_link_keyboard = InlineKeyboardMarkup(inline_keyboard=[[channel_link_button]])
-
-        try:
-            await message.answer("⚠️ Բոտից օգտվելու համար անհրաժեշտ է հետևել մեր ալիքին.", reply_markup=keyboard)
-        except Exception as e:
-            logging.error(f"Failed to send message with web app button: {e}")
-            await message.answer("⚠️ Բոտից օգտվելու համար անհրաժեշտ է հետևել մեր ալիքին.", reply_markup=channel_link_keyboard)
+        need_subscribe()
 
     else:
         user = await collection.find_one({"id": message.from_user.id})
@@ -149,30 +127,19 @@ async def webapp_command(message: types.Message):
     is_subscribed = await check_subscription(user_id)
 
     if not is_subscribed:
-        channel_app = WebAppInfo(url="https://t.me/cyber_gray")
-        button = InlineKeyboardButton(text="Հետևել➡️", web_app=channel_app)
-        keyboard = InlineKeyboardMarkup(inline_keyboard=[[button]])
-
-        channel_link_button = InlineKeyboardButton(text="Հետևել➡️", url="https://t.me/cyber_gray")
-        channel_link_keyboard = InlineKeyboardMarkup(inline_keyboard=[[channel_link_button]])
-
-        try:
-            await message.answer("⚠️ Բոտից օգտվելու համար անհրաժեշտ է հետևել մեր ալիքին.", reply_markup=keyboard)
-        except Exception as e:
-            logging.error(f"Failed to send message with web app button: {e}")
-            await message.answer("⚠️ Բոտից օգտվելու համար անհրաժեշտ է հետևել մեր ալիքին.", reply_markup=channel_link_keyboard)
+        need_subscribe()
 
     else:
 
         web_app = WebAppInfo(url="https://gray-quiz.vercel.app/account")
-        button = InlineKeyboardButton(text="Բացել խաղը", web_app=web_app)
+        button = InlineKeyboardButton(text="Բացել GrayQuizz-ը", web_app=web_app)
         keyboard = InlineKeyboardMarkup(inline_keyboard=[[button]])
 
         bot_link_button = InlineKeyboardButton(text="Բացել bot-ը", url="https://t.me/GrayQuizz_bot")
         bot_link_keyboard = InlineKeyboardMarkup(inline_keyboard=[[bot_link_button]])
 
         try:
-            await message.answer("🤖Սեղմեք կոճակին որպեսզի սկսեք խաղը:", reply_markup=keyboard)
+            await message.answer("🤖Սեղմեք կոճակին որպեսզի սկսեք GrayQuizz-ը:", reply_markup=keyboard)
         except Exception as e:
             logging.error(f"Failed to send message with web app button: {e}")
             await message.answer("➡️Խնդրում ենք բացել bot֊ով", reply_markup=bot_link_keyboard)
@@ -183,12 +150,7 @@ async def get_admins(message: types.Message):
     is_subscribed = await check_subscription(user_id)
 
     if not is_subscribed:
-        channel_app = WebAppInfo(url="https://t.me/cyber_gray")
-        button = InlineKeyboardButton(text="Հետևել➡️", web_app=channel_app)
-        keyboard = InlineKeyboardMarkup(inline_keyboard=[[button]])
-
-        channel_link_button = InlineKeyboardButton(text="Հետևել➡️", url="https://t.me/cyber_gray")
-        channel_link_keyboard = InlineKeyboardMarkup(inline_keyboard=[[channel_link_button]])
+        need_subscribe()
 
         try:
             await message.answer("⚠️ Բոտից օգտվելու համար անհրաժեշտ է հետևել մեր ալիքին.", reply_markup=keyboard)
