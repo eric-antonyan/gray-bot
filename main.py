@@ -71,7 +71,7 @@ async def start(message: types.Message):
     is_subscribed = await check_subscription(user_id)
 
     if not is_subscribed:
-        need_subscribe()
+        await need_subscribe(message)
     else:
         last_name = message.from_user.last_name or ''
         await message.answer(
