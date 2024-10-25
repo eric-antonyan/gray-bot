@@ -48,6 +48,7 @@ async def need_subscribe(message: types.Message):
     except Exception as e:
         logging.error(f"Failed to send message with web app button: {e}")
         await message.answer("⚠️ Բոտից օգտվելու համար անհրաժեշտ է հետևել մեր ալիքին.",reply_markup=channel_link_keyboard)
+        return
 async def get_user_photo(user_id):
 
     response = requests.get(f'https://api.telegram.org/bot{API_TOKEN}/getUserProfilePhotos?user_id={user_id}')
