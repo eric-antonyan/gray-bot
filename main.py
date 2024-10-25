@@ -100,7 +100,7 @@ async def help_command(message: types.Message):
     is_subscribed = await check_subscription(user_id)
 
     if not is_subscribed:
-        need_subscribe()
+        await need_subscribe(message)
     else:
         commands_list = "\n".join(available_commands)
         await message.answer(f"🔰Հասանելի հրամաններ:\n{commands_list}")
@@ -112,7 +112,7 @@ async def get_balance(message: types.Message):
     is_subscribed = await check_subscription(user_id)
 
     if not is_subscribed:
-        need_subscribe()
+        await need_subscribe(message)
 
     else:
         user = await collection.find_one({"id": message.from_user.id})
@@ -128,7 +128,7 @@ async def webapp_command(message: types.Message):
     is_subscribed = await check_subscription(user_id)
 
     if not is_subscribed:
-        need_subscribe()
+        await need_subscribe(message)
 
     else:
 
@@ -151,7 +151,7 @@ async def get_admins(message: types.Message):
     is_subscribed = await check_subscription(user_id)
 
     if not is_subscribed:
-        need_subscribe()
+        await need_subscribe(message)
 
         try:
             await message.answer("⚠️ Բոտից օգտվելու համար անհրաժեշտ է հետևել մեր ալիքին.", reply_markup=keyboard)
