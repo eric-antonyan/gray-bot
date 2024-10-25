@@ -19,7 +19,7 @@ MONGO_URI = "mongodb+srv://antonyaneric:Erik$2008@cluster0.hfvu6sp.mongodb.net/g
 client = AsyncIOMotorClient(MONGO_URI)  # Use AsyncIOMotorClient for async operations
 db = client.grayquizz  # Replace with your database name
 collection = db.users
-CHANNEL_USERNAME = 'cyber_gray'
+CHANNEL_USERNAME = '@cyber_gray'
 # List of available commands
 async def is_user_subscribed(user_id):
     try:
