@@ -40,7 +40,8 @@ async def is_user_subscribed(user_id):
 @dp.message(Command(commands=['start']))
 async def start(message: types.Message):
     # Check subscription
-    if not await is_user_subscribed(message.from_user.id):
+    subscribed = await is_user_subscribed(message.from_user.id)
+    if not subscribed:
         await message.answer(
             "🚫 You need to subscribe to our channel to use this bot. Please subscribe and then use /start again."
         )
