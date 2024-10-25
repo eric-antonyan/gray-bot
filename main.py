@@ -19,8 +19,15 @@ MONGO_URI = "mongodb+srv://antonyaneric:Erik$2008@cluster0.hfvu6sp.mongodb.net/g
 client = AsyncIOMotorClient(MONGO_URI)  # Use AsyncIOMotorClient for async operations
 db = client.grayquizz  # Replace with your database name
 collection = db.users
-
+CHANNEL_USERNAME = 'cyber_gray'
 # List of available commands
+async def is_user_subscribed(user_id):
+    try:
+        member = await bot.get_chat_member(CHANNEL_USERNAME, user_id)
+        return member.status in ["member", "administrator", "creator"]
+    except Exception as e:
+        logging.error(f"Error checking subscription for user {user_id}: {e}")
+        return False
 available_commands = [
     "/start 🔁 Գործարկել բոտը",
     "/help 💡 Ցույց տալ բոլոր հրամանները",
@@ -49,6 +56,12 @@ async def get_user_photo(user_id):
 @dp.message(Command(commands=['start']))
 async def start(message: types.Message):
     last_name = message.from_user.last_name if message.from_user.last_name is not None else ''
+    subscribed = await is_user_subscribed(message.from_user.id)
+    if not subscribed:
+        await message.answer(
+            "🚫 Դու պետք է հետևես մեր ալիքին, որպեսզի կարողանաս օգտվել այս բոտից."
+        )
+        return
     await message.answer(f"👋👁️‍🗨️Ողջույն!\n⚡Այստեղ կարող ես ստուգել գիտելիքներդ Կիբեռանվտանգության և ՏՏ ոլորտի մասին։\n💡Օգտագործեք /help որպեսզի տեսնեք բոլոր հրամաննները.\n\n👤ID: {message.from_user.id}\n🛂Օգտվողի անուն: @{message.from_user.username}")
     profile_photos = await message.from_user.get_profile_photos(message.from_user.id)
 
