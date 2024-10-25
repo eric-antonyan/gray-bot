@@ -28,10 +28,12 @@ CHANNEL_USERNAME = 'cyber_gray'
 async def is_user_subscribed(user_id):
     try:
         member = await bot.get_chat_member(CHANNEL_USERNAME, user_id)
+        logging.info(f"Checked subscription for user_id {user_id}: {member.status}")
         return member.status in ["member", "administrator", "creator"]
     except Exception as e:
         logging.error(f"Error checking subscription for user {user_id}: {e}")
         return False
+
 
 
 # Command handler for /start
