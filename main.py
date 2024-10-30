@@ -27,7 +27,8 @@ available_commands = [
     "/help 💡 Ցույց տալ բոլոր հրամանները",
     "/webapp 🧠 Բացել GrayQuizz ծրագիրը",
     "/balance 💲 Տեսնել բալանսը",
-    "/get_admins 🎩 Ցույց տալ բոտի ադմինիստրացիային"
+    "/get_admins 🎩 Ցույց տալ բոտի ադմինիստրացիային",
+    "/donate ☘️ Աջակցել մեզ"
 ]
 
 
@@ -183,10 +184,28 @@ async def get_admins(message: types.Message):
             await message.answer("⚠️ Բոտից օգտվելու համար անհրաժեշտ է հետևել մեր ալիքին.", reply_markup=channel_link_keyboard)
 
     else:
-        admins = ["@mrgrayofficial", "@Art_Movsisyan", "@antonyandev", "@Sinatra_887"]
+        admins = ["@mrgrayofficial", "@Art_Movsisyan", "@antonyandev", "@Sinatra_47"]
         admin_list = [f"🔴 {admin}" for admin in admins]
         await message.answer("🎩Բոտի ադմինիստրացիան\n" + "\n".join(admin_list))
 
+@dp.message(Command(commands=['donate']))
+async def donate_command(message: types.Message):
+    user_id = message.from_user.id
+    is_subscribed = await check_subscription(user_id)
+    if not is_subscribed:
+        await need_subscribe(message)
+    else:
+        await message.answer(
+            "💖 Նպաստեք մեր բոտին\n\n"
+            "Եթե ցանկանում եք աջակցել մեր աշխատանքին, կարող եք դոնաթել կրիպտո արժույթով:\n\n"
+            "📬 Կրիպտո հասցե\n"
+            "Ethereum(BEP20): 0xd303f5d69ef6fa90ddbbe2d0f943175db40ecc1d\n"
+            "Bitcoin(BEP20): 0xd303f5d69ef6fa90ddbbe2d0f943175db40ecc1d\n"
+            "USDT(TRX20): TNwAA2qBC9Wirr5dfhwp12sii3wFwzCJHE\n"
+            "\n"
+            "🙏 Ձեր աջակցության շնորհիվ մենք կարող ենք շարունակել զարգացնել և բարելավել մեր բոտը, ինչպես նաև ավելացնել նոր հետաքրքիր հարցեր և հնարավորություններ:\n\n"
+            "📩 Ունե՞ք հարցեր կամ առաջարկներ? Մեզ հետ կապ հաստատելու համար կարող եք գրել ադմինիստրացիային @mrgrayofficial"
+        )
 
 # Main function to start the bot
 async def main():
