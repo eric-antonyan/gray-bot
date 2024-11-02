@@ -184,7 +184,7 @@ async def get_admins(message: types.Message):
             await message.answer("⚠️ Բոտից օգտվելու համար անհրաժեշտ է հետևել մեր ալիքին.", reply_markup=channel_link_keyboard)
 
     else:
-        admins = ["@mrgrayofficial", "@Art_Movsisyan", "@antonyandev", "@Sinatra_47"]
+        admins = ["@mrgrayofficial", "@Art_Movsisyan", "@netfaca", "@Sinatra_47"]
         admin_list = [f"🔴 {admin}" for admin in admins]
         await message.answer("🎩Բոտի ադմինիստրացիան\n" + "\n".join(admin_list))
 
