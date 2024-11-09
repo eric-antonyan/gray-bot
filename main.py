@@ -74,7 +74,7 @@ async def add_referral(user_id, referrer_id):
 @dp.message(Command(commands=['ref']))
 async def ref(message: types.Message):
     user_id = message.from_user.id
-    referral_link = f"Հրավիրիր ընկերներիդ GrayQuizz🧠 և ստացիր հավելյալ 10FMM ամեն նոր մասնակցի համար /get_friends 🔑 Տեսնել միացած ընկերներին ➡️ https://t.me/GrayQuizz_Bot?start={user_id}"
+    referral_link = f"Հրավիրիր ընկերներիդ GrayQuizz🧠 և ստացիր հավելյալ 10FMM ամեն նոր մասնակցի համար \nԿիսվիր այս հղումով ➡️ https://t.me/GrayQuizz_Bot?start={user_id}"
     share_button = InlineKeyboardButton(text="կիսվել", switch_inline_query=referral_link)
     keyboard = InlineKeyboardMarkup(inline_keyboard=[[share_button]])
 
