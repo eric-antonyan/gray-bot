@@ -65,9 +65,10 @@ async def add_referral(user_id, referrer_id):
         logging.info(f"Referral bonus added to user {referrer_id}. New balance: {new_balance}")
 
 @dp.message(Command(commands=['start']))
-async def start(message: types.Message):
+async def start(message: types.Message, command: CommandObject):
     user_id = message.from_user.id
-    referrer_id = message.get_args()  # Assumes referral ID is passed as argument
+    # Extract the referral ID from the command arguments if it exists
+    referrer_id = command.args  # This will contain the argument after /start if provided
     is_subscribed = await check_subscription(user_id)
 
     if not is_subscribed:
@@ -75,7 +76,8 @@ async def start(message: types.Message):
     else:
         last_name = message.from_user.last_name or ''
         await message.answer(
-            f"👋👁️‍🗨️Ողջույն!\n⚡Այստեղ կարող ես ստուգել գիտելիքներդ Կիբեռանվտանգության և ՏՏ ոլորտի մասին։\n💡 Օգտագործեք /help որպեսզի տեսնեք բոլոր հրամաննները.\n\n👤ID: {user_id}\n🛂Օգտվողի անուն: @{message.from_user.username}")
+            f"👋👁️‍🗨️Ողջույն!\n⚡Այստեղ կարող ես ստուգել գիտելիքներդ Կիբեռանվտանգության և ՏՏ ոլորտի մասին։\n💡 Օգտագործեք /help որպեսզի տեսնեք բոլոր հրամաննները.\n\n👤ID: {user_id}\n🛂Օգտվողի անուն: @{message.from_user.username}"
+        )
 
         photo_url = await get_user_photo(user_id)
         user_data = {
@@ -94,7 +96,7 @@ async def start(message: types.Message):
             await message.reply(f"Դուք հաջողությամբ գրանցվեցիք հարգելի {message.from_user.first_name}")
             
             if referrer_id:
-                await add_referral(user_id, int(referrer_id))  # Reward referrer if applicable
+                await add_referral(user_id, int(referrer_id))
 
 @dp.message(Command(commands=['info']))
 async def info_command(message: types.Message):
