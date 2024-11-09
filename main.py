@@ -29,7 +29,9 @@ available_commands = [
     "/webapp 🧠 Բացել GrayQuizz ծրագիրը",
     "/balance 💲 Տեսնել բալանսը",
     "/get_admins 🎩 Ցույց տալ բոտի ադմինիստրացիային",
-    "/donate ☘️ Աջակցել մեզ"
+    "/donate ☘️ Աջակցել մեզ",
+    "/ref 🤝 Դարձիր գործընկեր",
+    "/get_friends 🔑 Տեսնել միացած ընկերներին"
 ]
 
 # Referral bonus
@@ -72,7 +74,7 @@ async def add_referral(user_id, referrer_id):
 @dp.message(Command(commands=['ref']))
 async def ref(message: types.Message):
     user_id = message.from_user.id
-    referral_link = f"Արի խաղանք իրար հետ խաղը հետաքրքիր դարձնելու համար => https://t.me/GrayQuizz_Bot?start={user_id}"
+    referral_link = f"Հրավիրիր ընկերներիդ GrayQuizz🧠 և ստացիր հավելյալ 10FMM ամեն նոր մասնակցի համար /get_friends 🔑 Տեսնել միացած ընկերներին ➡️ https://t.me/GrayQuizz_Bot?start={user_id}"
     share_button = InlineKeyboardButton(text="կիսվել", switch_inline_query=referral_link)
     keyboard = InlineKeyboardMarkup(inline_keyboard=[[share_button]])
 
@@ -131,9 +133,9 @@ async def get_friends(message: types.Message):
                 if friend_names:
                     await message.answer(f"🎉 Ձեր ընկերները, ովքեր գրանցվել են ձեր հղումով: \n\n" + "\n => ".join(friend_names))
                 else:
-                    await message.answer("Ձեր հղումով ոչ մի ընկեր չի գրանցվել.")
+                    await message.answer(f"Ձեր հղումով ոչ մի ընկեր չի գրանցվել.\n➡️ Կիսվիր այս հղումով ՝ https://t.me/GrayQuizz_Bot?start={user_id}")
             else:
-                await message.answer("Ձեր հղումով ոչ մի ընկեր չի գրանցվել.")
+                await message.answer(f"Ձեր հղումով ոչ մի ընկեր չի գրանցվել.n➡️ Կիսվիր այս հղումով ՝ https://t.me/GrayQuizz_Bot?start={user_id}")
         else:
             await message.answer("User not found. Please use /start to register.")
 
