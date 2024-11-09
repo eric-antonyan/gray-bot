@@ -64,7 +64,7 @@ async def add_referral(user_id, referrer_id):
         await collection.update_one({"id": referrer_id}, {"$set": {"balance": new_balance}})
         logging.info(f"Referral bonus added to user {referrer_id}. New balance: {new_balance}")
 
-@dp.messsage(Command(commands=['ref']))
+@dp.message(Command(commands=['ref']))
 async def ref(message: types.Message):
     # Create the "share" button with a callback query
     share_button = InlineKeyboardButton(text="Ուղարկիր ընկերոջը", switch_inline_query="")
