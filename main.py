@@ -100,7 +100,7 @@ async def start(message: types.Message):
             if referrer_id:
                 await add_referral(user_id, int(referrer_id))
 
-@dp.message(Command(commands=['get-friends']))
+@dp.message(Command(commands=['get_friends']))
 async def get_friends(message: types.Message):
     user_id = message.from_user.id
     is_subscribed = await check_subscription(user_id)
