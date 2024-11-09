@@ -125,7 +125,8 @@ async def get_friends(message: types.Message):
         if user:
             referrals = user.get("referrals", [])
             if referrals:
-                friends = await collection.find({"id": {"$in": referrals}}).to_list(length=None)
+                friends = await collection.find({"id": {"$in": list(set(referrals))}}).to_list(length=None)
+
                 friend_names = [f"{friend['first_name']} {friend.get('last_name', '')}" for friend in friends]
                 if friend_names:
                     await message.answer(f"🎉 Ձեր ընկերները, ովքեր գրանցվել են ձեր հղումով: \n\n" + "\n => ".join(friend_names))
