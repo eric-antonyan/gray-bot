@@ -73,7 +73,7 @@ async def ref(message: types.Message):
     referral_link = f"https://t.me/GrayQuizz_Bot?start={user_id}"
     
     # Create the "share" button with the referral link
-    share_button = InlineKeyboardButton(text="Ուղարկիր ընկերոջդ", url=referral_link)
+    share_button = InlineKeyboardButton(text="Ուղարկիր ընկերոջդ", switch_inline_query=referral_link)
 
     keyboard = InlineKeyboardMarkup(inline_keyboard=[[share_button]])
 
