@@ -70,15 +70,15 @@ async def ref(message: types.Message):
     user_id = message.from_user.id  # or use any ID associated with the user
     
     # Generate the referral link
-    referral_link = f"https://t.me/GrayQuizz_Bot?start={user_id}"
+    referral_link = f"Արի խաղանք իրար հետ խաղը հետաքրքիր դարձնելու համար => https://t.me/GrayQuizz_Bot?start={user_id}"
     
     # Create the "share" button with the referral link
-    share_button = InlineKeyboardButton(text="Ուղարկիր ընկերոջդ", switch_inline_query=referral_link)
+    share_button = InlineKeyboardButton(text="կիսվել", switch_inline_query=referral_link)
 
     keyboard = InlineKeyboardMarkup(inline_keyboard=[[share_button]])
 
     # Send the message with the referral link and the share button
-    await message.reply(f"Ուղարկիր այս հաղորդագրությունը ընկերոջդ՝\n{referral_link}", reply_markup=keyboard)
+    await message.reply(f"Կիսվիր ընկերոջդ հետ՝\n{referral_link}", reply_markup=keyboard)
 
 @dp.message(Command(commands=['start']))
 async def start(message: types.Message):
