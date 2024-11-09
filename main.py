@@ -65,10 +65,9 @@ async def add_referral(user_id, referrer_id):
         logging.info(f"Referral bonus added to user {referrer_id}. New balance: {new_balance}")
 
 @dp.message(Command(commands=['start']))
-async def start(message: types.Message, command: CommandObject):
+async def start(message: types.Message):
     user_id = message.from_user.id
-    # Extract the referral ID from the command arguments if it exists
-    referrer_id = command.args  # This will contain the argument after /start if provided
+    referrer_id = message.get_args()  # Retrieve any arguments passed with the /start command
     is_subscribed = await check_subscription(user_id)
 
     if not is_subscribed:
@@ -94,7 +93,7 @@ async def start(message: types.Message, command: CommandObject):
             await collection.insert_one(user_data)
             logging.info(f"New user added: {user_data}")
             await message.reply(f"Դուք հաջողությամբ գրանցվեցիք հարգելի {message.from_user.first_name}")
-            
+
             if referrer_id:
                 await add_referral(user_id, int(referrer_id))
 
