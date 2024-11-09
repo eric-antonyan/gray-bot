@@ -16,7 +16,7 @@ CHANNEL_ID = "@cyber_gray"  # Your channel's username
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher()
 
-MONGO_URI = "mongodb+srv://antonyaneric:Erik$2008@cluster0.hfvu6sp.mongodb.net/grayquizz?retryWrites=true&w=majority&appName=Cluster0"
+MONGO_URI = os.getenv("MONGO_URI")
 client = AsyncIOMotorClient(MONGO_URI)
 db = client.grayquizz
 collection = db.users
@@ -67,7 +67,8 @@ async def add_referral(user_id, referrer_id):
 @dp.message(Command(commands=['start']))
 async def start(message: types.Message):
     user_id = message.from_user.id
-    referrer_id = message.get_args()  # Retrieve any arguments passed with the /start command
+    parts = message.text.split(maxsplit=1)
+    referrer_id = parts[1] if len(parts) > 1 else None
     is_subscribed = await check_subscription(user_id)
 
     if not is_subscribed:
