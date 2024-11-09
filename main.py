@@ -64,10 +64,10 @@ async def add_referral(user_id, referrer_id):
         await collection.update_one({"id": referrer_id}, {"$set": {"balance": new_balance}})
         logging.info(f"Referral bonus added to user {referrer_id}. New balance: {new_balance}")
 
-@dp.message_handler(commands=['ref'])
+@dp.message(Command(commands=['ref']))
 async def ref(message: types.Message):
     # Generate the referral link with the user ID as a parameter
-    referral_link = f"https://t.me/YOUR_BOT_USERNAME?start={message.from_user.id}"
+    referral_link = f"https://t.me/GrayQuizz_bot?start={message.from_user.id}"
     
     # Create an inline keyboard with the referral link
     keyboard = InlineKeyboardMarkup(row_width=1)
