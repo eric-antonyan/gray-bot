@@ -5,17 +5,18 @@ from aiogram.filters import Command
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
 from motor.motor_asyncio import AsyncIOMotorClient
 import requests
+import os
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 
 # Initialize bot and dispatcher
-API_TOKEN = '7943946022:AAE45JUbp_36N2LinQqgZ_OMOLd7ul-oAqo'
+API_TOKEN = os.getenv("API_TOKEN")
 CHANNEL_ID = "@cyber_gray"  # Your channel's username
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher()
 
-MONGO_URI = "mongodb+srv://antonyaneric:Erik$2008@cluster0.hfvu6sp.mongodb.net/grayquizz?retryWrites=true&w=majority&appName=Cluster0"
+MONGO_URI = os.getenv("MONGO_URI")
 client = AsyncIOMotorClient(MONGO_URI)
 db = client.grayquizz
 collection = db.users
@@ -23,7 +24,7 @@ collection = db.users
 # List of available commands
 available_commands = [
     "/start 🔁 Գործարկել բոտը",
-    "/info ℹ️ Տեղեկություն բոտի մասին"
+    "/info ℹ️ Տեղեկություն բոտի մասին",
     "/help 💡 Ցույց տալ բոլոր հրամանները",
     "/webapp 🧠 Բացել GrayQuizz ծրագիրը",
     "/balance 💲 Տեսնել բալանսը",
@@ -31,28 +32,19 @@ available_commands = [
     "/donate ☘️ Աջակցել մեզ"
 ]
 
+# Referral bonus
+REFERRAL_BONUS = 10  # Amount to reward referrer for each successful referral
 
 async def check_subscription(user_id):
-
     chat_member = await bot.get_chat_member(chat_id=CHANNEL_ID, user_id=user_id)
     return chat_member.status != 'left'
 
 async def need_subscribe(message: types.Message):
-    channel_app = WebAppInfo(url="https://t.me/cyber_gray")
-    button = InlineKeyboardButton(text="Հետևել➡️", web_app=channel_app)
-    keyboard = InlineKeyboardMarkup(inline_keyboard=[[button]])
-
     channel_link_button = InlineKeyboardButton(text="Հետևել➡️", url="https://t.me/cyber_gray")
     channel_link_keyboard = InlineKeyboardMarkup(inline_keyboard=[[channel_link_button]])
+    await message.answer("⚠️ Բոտից օգտվելու համար անհրաժեշտ է հետևել մեր ալիքին.", reply_markup=channel_link_keyboard)
 
-    try:
-        await message.answer("⚠️ Բոտից օգտվելու համար անհրաժեշտ է հետևել մեր ալիքին.", reply_markup=keyboard)
-    except Exception as e:
-        logging.error(f"Failed to send message with web app button: {e}")
-        await message.answer("⚠️ Բոտից օգտվելու համար անհրաժեշտ է հետևել մեր ալիքին.",reply_markup=channel_link_keyboard)
-    return
 async def get_user_photo(user_id):
-
     response = requests.get(f'https://api.telegram.org/bot{API_TOKEN}/getUserProfilePhotos?user_id={user_id}')
     if response.status_code == 200:
         data = response.json()
@@ -65,11 +57,17 @@ async def get_user_photo(user_id):
                 return file_url
     return None
 
+async def add_referral(user_id, referrer_id):
+    referrer = await collection.find_one({"id": referrer_id})
+    if referrer:
+        new_balance = referrer["balance"] + REFERRAL_BONUS
+        await collection.update_one({"id": referrer_id}, {"$set": {"balance": new_balance}})
+        logging.info(f"Referral bonus added to user {referrer_id}. New balance: {new_balance}")
 
-# Command handler for /start
 @dp.message(Command(commands=['start']))
 async def start(message: types.Message):
     user_id = message.from_user.id
+    referrer_id = message.get_args()  # Assumes referral ID is passed as argument
     is_subscribed = await check_subscription(user_id)
 
     if not is_subscribed:
@@ -94,7 +92,9 @@ async def start(message: types.Message):
             await collection.insert_one(user_data)
             logging.info(f"New user added: {user_data}")
             await message.reply(f"Դուք հաջողությամբ գրանցվեցիք հարգելի {message.from_user.first_name}")
-
+            
+            if referrer_id:
+                await add_referral(user_id, int(referrer_id))  # Reward referrer if applicable
 
 @dp.message(Command(commands=['info']))
 async def info_command(message: types.Message):
@@ -105,18 +105,7 @@ async def info_command(message: types.Message):
         await need_subscribe(message)
     else:
         commands_list = "\n".join(available_commands)
-        await message.answer(
-            "ℹ️ Բոտի Մասին\n\n"
-            "🤖 Այս բոտը նախատեսված է օգնելու ձեզ ստուգել ձեր գիտելիքները կիբեռանվտանգության և ՏՏ ոլորտում։ "
-            "🔍 Այստեղ կգտնեք quizz-ներ տարբեր թեմաների վերաբերյալ, որոնք կօգնեն ձեզ ավելի լավ հասկանալտեղեկատվական տեխնոլոգիաների և "
-            "կիբեռանվտանգության տարբեր ասպեկտները։\n\n"
-            "💰FMM (Ֆայմի միջազգային միավորներ) – Հնարավորություն կա վաստակելու FMM միավորներ՝ ճիշտ պատասխանելով quiz-ների հարցերին։ "
-            "Այս միավորները հետագայում կարող եք օգտագործել ալիքում՝ տարբեր հնարավորություններ գնելու համար։ "
-            "Հարցաշարերին ծանոթանալու համար անցեք /webapp հրամանի account բաժին։\n\n"
-            "📢 Մեր ալիքում՝ @cyber_gray, կարող եք գտնել նորություններ և հոդվածներ այս թեմաների վերաբերյալ։\n\n"
-            f"🔰Հասանելի հրամաններ:\n{commands_list}\n\n"
-            "📩 Ունե՞ք հարցեր կամ առաջարկներ: Մեզ հետ կապ հաստատելու համար կարող եք գրել ադմինիստրացիային /get_admins"
-        )
+        await message.answer(f"ℹ️ Բոտի Մասին\n\n🔰Հասանելի հրամաններ:\n{commands_list}")
 
 @dp.message(Command(commands=['help']))
 async def help_command(message: types.Message):
@@ -129,7 +118,6 @@ async def help_command(message: types.Message):
         commands_list = "\n".join(available_commands)
         await message.answer(f"🔰Հասանելի հրամաններ:\n{commands_list}")
 
-
 @dp.message(Command(commands=['balance']))
 async def get_balance(message: types.Message):
     user_id = message.from_user.id
@@ -137,14 +125,12 @@ async def get_balance(message: types.Message):
 
     if not is_subscribed:
         await need_subscribe(message)
-
     else:
-        user = await collection.find_one({"id": message.from_user.id})
+        user = await collection.find_one({"id": user_id})
         if user:
             await message.answer(f'👤Հարգելի {user["first_name"]},\n💲Ձեր հաշվի վրա տվյալ պահին կա: {user["balance"]} FMM🪙')
         else:
             await message.answer("User not found. Please use /start to register.")
-
 
 @dp.message(Command(commands=['webapp']))
 async def webapp_command(message: types.Message):
@@ -153,21 +139,11 @@ async def webapp_command(message: types.Message):
 
     if not is_subscribed:
         await need_subscribe(message)
-
     else:
-
         web_app = WebAppInfo(url="https://gray-quiz.vercel.app/account")
         button = InlineKeyboardButton(text="Բացել GrayQuizz-ը", web_app=web_app)
         keyboard = InlineKeyboardMarkup(inline_keyboard=[[button]])
-
-        bot_link_button = InlineKeyboardButton(text="Բացել bot-ը", url="https://t.me/GrayQuizz_bot")
-        bot_link_keyboard = InlineKeyboardMarkup(inline_keyboard=[[bot_link_button]])
-
-        try:
-            await message.answer("🤖Սեղմեք կոճակին որպեսզի սկսեք GrayQuizz-ը:", reply_markup=keyboard)
-        except Exception as e:
-            logging.error(f"Failed to send message with web app button: {e}")
-            await message.answer("➡️Խնդրում ենք բացել bot֊ով", reply_markup=bot_link_keyboard)
+        await message.answer("🤖Սեղմեք կոճակին որպեսզի սկսեք GrayQuizz-ը:", reply_markup=keyboard)
 
 @dp.message(Command(commands=['get_admins']))
 async def get_admins(message: types.Message):
@@ -176,13 +152,6 @@ async def get_admins(message: types.Message):
 
     if not is_subscribed:
         await need_subscribe(message)
-
-        try:
-            await message.answer("⚠️ Բոտից օգտվելու համար անհրաժեշտ է հետևել մեր ալիքին.", reply_markup=keyboard)
-        except Exception as e:
-            logging.error(f"Failed to send message with web app button: {e}")
-            await message.answer("⚠️ Բոտից օգտվելու համար անհրաժեշտ է հետևել մեր ալիքին.", reply_markup=channel_link_keyboard)
-
     else:
         admins = ["@mrgrayofficial", "@Art_Movsisyan", "@netfaca", "@Sinatra_47"]
         admin_list = [f"🔴 {admin}" for admin in admins]
@@ -196,21 +165,15 @@ async def donate_command(message: types.Message):
         await need_subscribe(message)
     else:
         await message.answer(
-            "💖 Նպաստեք մեր բոտին\n\n"
-            "Եթե ցանկանում եք աջակցել մեր աշխատանքին, կարող եք դոնաթել կրիպտո արժույթով:\n\n"
-            "📬 Կրիպտո հասցե\n\n"
+            "💖 Նպաստեք մեր բոտին\n\n📬 Կրիպտո հասցե\n\n"
             "Ethereum(BEP20): 0xd303f5d69ef6fa90ddbbe2d0f943175db40ecc1d\n\n"
             "Bitcoin(BEP20): 0xd303f5d69ef6fa90ddbbe2d0f943175db40ecc1d\n\n"
             "USDT(TRX20): TNwAA2qBC9Wirr5dfhwp12sii3wFwzCJHE\n"
-            "\n"
-            "🙏 Ձեր աջակցության շնորհիվ մենք կարող ենք շարունակել զարգացնել և բարելավել մեր բոտը, ինչպես նաև ավելացնել նոր հետաքրքիր հարցեր և հնարավորություններ:\n\n"
-            "📩 Ունե՞ք հարցեր կամ առաջարկներ? Մեզ հետ կապ հաստատելու համար կարող եք գրել ադմինիստրացիային /get_admins"
+            "\n🙏 Ձեր աջակցության շնորհիվ մենք կարող ենք շարունակել զարգացնել և բարելավել մեր բոտը"
         )
 
-# Main function to start the bot
 async def main():
     await dp.start_polling(bot)
-
 
 if __name__ == '__main__':
     asyncio.run(main())
