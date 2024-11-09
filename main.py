@@ -44,40 +44,25 @@ async def need_subscribe(message: types.Message):
     channel_link_keyboard = InlineKeyboardMarkup(inline_keyboard=[[channel_link_button]])
     await message.answer("⚠️ Բոտից օգտվելու համար անհրաժեշտ է հետևել մեր ալիքին.", reply_markup=channel_link_keyboard)
 
-async def get_user_photo(user_id):
-    response = requests.get(f'https://api.telegram.org/bot{API_TOKEN}/getUserProfilePhotos?user_id={user_id}')
-    if response.status_code == 200:
-        data = response.json()
-        if data.get('ok') and data['result']['photos']:
-            photo_file_id = data['result']['photos'][0][0]['file_id']
-            file_response = requests.get(f'https://api.telegram.org/bot{API_TOKEN}/getFile?file_id={photo_file_id}')
-            if file_response.status_code == 200:
-                file_data = file_response.json()
-                file_url = f'https://api.telegram.org/file/bot{API_TOKEN}/{file_data["result"]["file_path"]}'
-                return file_url
-    return None
-
 async def add_referral(user_id, referrer_id):
     referrer = await collection.find_one({"id": referrer_id})
     if referrer:
+        # Update the referrer balance
         new_balance = referrer["balance"] + REFERRAL_BONUS
         await collection.update_one({"id": referrer_id}, {"$set": {"balance": new_balance}})
         logging.info(f"Referral bonus added to user {referrer_id}. New balance: {new_balance}")
+        
+        # Add the user to the referrer's referrals list
+        await collection.update_one({"id": referrer_id}, {"$push": {"referrals": user_id}})
+        logging.info(f"User {user_id} added to referrer {referrer_id}'s referral list.")
 
 @dp.message(Command(commands=['ref']))
 async def ref(message: types.Message):
-    # Create the "share" button with a callback query
-    user_id = message.from_user.id  # or use any ID associated with the user
-    
-    # Generate the referral link
+    user_id = message.from_user.id
     referral_link = f"Արի խաղանք իրար հետ խաղը հետաքրքիր դարձնելու համար => https://t.me/GrayQuizz_Bot?start={user_id}"
-    
-    # Create the "share" button with the referral link
     share_button = InlineKeyboardButton(text="կիսվել", switch_inline_query=referral_link)
-
     keyboard = InlineKeyboardMarkup(inline_keyboard=[[share_button]])
 
-    # Send the message with the referral link and the share button
     await message.reply(f"Կիսվիր ընկերոջդ հետ՝\n{referral_link}", reply_markup=keyboard)
 
 @dp.message(Command(commands=['start']))
@@ -102,7 +87,8 @@ async def start(message: types.Message):
             "last_name": last_name,
             "username": message.from_user.username,
             "balance": 0,
-            "photo_url": photo_url
+            "photo_url": photo_url,
+            "referrals": []  # Add referrals field to store referred users
         }
 
         existing_user = await collection.find_one({"id": user_id})
@@ -113,6 +99,30 @@ async def start(message: types.Message):
 
             if referrer_id:
                 await add_referral(user_id, int(referrer_id))
+
+@dp.message(Command(commands=['get-friends']))
+async def get_friends(message: types.Message):
+    user_id = message.from_user.id
+    is_subscribed = await check_subscription(user_id)
+
+    if not is_subscribed:
+        await need_subscribe(message)
+    else:
+        user = await collection.find_one({"id": user_id})
+        if user:
+            referrals = user.get("referrals", [])
+            if referrals:
+                friends = await collection.find({"id": {"$in": referrals}}).to_list(length=None)
+                friend_names = [f"{friend['first_name']} {friend.get('last_name', '')}" for friend in friends]
+                if friend_names:
+                    await message.answer(f"🎉 Ձեր ընկերները, ովքեր գրանցվել են ձեր հղումով.\n\n" + "\n".join(friend_names))
+                else:
+                    await message.answer("Ձեր հղումով ոչ մի ընկեր չի գրանցվել.")
+            else:
+                await message.answer("Ձեր հղումով ոչ մի ընկեր չի գրանցվել.")
+        else:
+            await message.answer("User not found. Please use /start to register.")
+
 
 @dp.message(Command(commands=['info']))
 async def info_command(message: types.Message):
