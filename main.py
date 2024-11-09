@@ -35,6 +35,19 @@ available_commands = [
 # Referral bonus
 REFERRAL_BONUS = 10  # Amount to reward referrer for each successful referral
 
+async def get_user_photo(user_id):
+    response = requests.get(f'https://api.telegram.org/bot{API_TOKEN}/getUserProfilePhotos?user_id={user_id}')
+    if response.status_code == 200:
+        data = response.json()
+        if data.get('ok') and data['result']['photos']:
+            photo_file_id = data['result']['photos'][0][0]['file_id']
+            file_response = requests.get(f'https://api.telegram.org/bot{API_TOKEN}/getFile?file_id={photo_file_id}')
+            if file_response.status_code == 200:
+                file_data = file_response.json()
+                file_url = f'https://api.telegram.org/file/bot{API_TOKEN}/{file_data["result"]["file_path"]}'
+                return file_url
+    return None
+
 async def check_subscription(user_id):
     chat_member = await bot.get_chat_member(chat_id=CHANNEL_ID, user_id=user_id)
     return chat_member.status != 'left'
