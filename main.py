@@ -16,7 +16,7 @@ CHANNEL_ID = "@cyber_gray"  # Your channel's username
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher()
 
-MONGO_URI = os.getenv("MONGO_URI")
+MONGO_URI = "mongodb+srv://antonyaneric:Erik$2008@cluster0.hfvu6sp.mongodb.net/grayquizz?retryWrites=true&w=majority&appName=Cluster0"
 client = AsyncIOMotorClient(MONGO_URI)
 db = client.grayquizz
 collection = db.users
