@@ -64,6 +64,19 @@ async def add_referral(user_id, referrer_id):
         await collection.update_one({"id": referrer_id}, {"$set": {"balance": new_balance}})
         logging.info(f"Referral bonus added to user {referrer_id}. New balance: {new_balance}")
 
+@dp.message_handler(commands=['ref'])
+async def ref(message: types.Message):
+    # Generate the referral link with the user ID as a parameter
+    referral_link = f"https://t.me/YOUR_BOT_USERNAME?start={message.from_user.id}"
+    
+    # Create an inline keyboard with the referral link
+    keyboard = InlineKeyboardMarkup(row_width=1)
+    referral_button = InlineKeyboardButton(text="Իմ ref հղումը", url=referral_link)
+    keyboard.add(referral_button)
+    
+    # Send the message with the inline button
+    await message.reply("Կիսվիր ընկերոջդ հետ ref հղումով!", reply_markup=keyboard)
+
 @dp.message(Command(commands=['start']))
 async def start(message: types.Message):
     user_id = message.from_user.id
