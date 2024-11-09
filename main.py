@@ -4,6 +4,7 @@ from aiogram.filters import Command
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
 from motor.motor_asyncio import AsyncIOMotorClient
 import requests
+import logging
 import os
 
 # Configure logging
