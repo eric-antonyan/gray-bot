@@ -188,7 +188,15 @@ async def webapp_command(message: types.Message):
         web_app = WebAppInfo(url="https://gray-quiz.vercel.app/account")
         button = InlineKeyboardButton(text="Բացել GrayQuizz-ը", web_app=web_app)
         keyboard = InlineKeyboardMarkup(inline_keyboard=[[button]])
-        await message.answer("🤖Սեղմեք կոճակին որպեսզի սկսեք GrayQuizz-ը:", reply_markup=keyboard)
+
+        bot_link_button = InlineKeyboardButton(text="Բացել bot-ը", url="https://t.me/GrayQuizz_bot")
+        bot_link_keyboard = InlineKeyboardMarkup(inline_keyboard=[[bot_link_button]])
+
+        try:
+            await message.answer("🤖Սեղմեք կոճակին որպեսզի սկսեք GrayQuizz-ը:", reply_markup=keyboard)
+        except Exception as e:
+            logging.error(f"Failed to send message with web app button: {e}")
+            await message.answer("➡️Խնդրում ենք բացել bot֊ով", reply_markup=bot_link_keyboard)
 
 @dp.message(Command(commands=['get_admins']))
 async def get_admins(message: types.Message):
