@@ -74,12 +74,17 @@ async def add_referral(user_id, referrer_id):
 @dp.message(Command(commands=['ref']))
 async def ref(message: types.Message):
     user_id = message.from_user.id
-    await message.answer(f"Հրավիրիր ընկերներիդ GrayQuizz🧠 և ստացիր հավելյալ 10FMM ամեն նոր մասնակցի համար \nԿիսվիր այս հղումով ➡️ https://t.me/GrayQuizz_Bot?start={user_id}")
-    referral_link = f"https://t.me/GrayQuizz_Bot?start={user_id}"
-    share_button = InlineKeyboardButton(text="Կիսվել", switch_inline_query=referral_link)
-    keyboard = InlineKeyboardMarkup(inline_keyboard=[[share_button]])
+    is_subscribed = await check_subscription(user_id)
 
-    await message.reply(f"Կիսվիր ընկերոջդ հետ՝\n{referral_link}", reply_markup=keyboard)
+    if not is_subscribed:
+        await need_subscribe(message)
+    else:
+        await message.answer(f"Հրավիրիր ընկերներիդ GrayQuizz🧠 և ստացիր հավելյալ 10FMM ամեն նոր մասնակցի համար \nԿիսվիր այս հղումով ➡️ https://t.me/GrayQuizz_Bot?start={user_id}")
+        referral_link = f"https://t.me/GrayQuizz_Bot?start={user_id}"
+        share_button = InlineKeyboardButton(text="Կիսվել", switch_inline_query=referral_link)
+        keyboard = InlineKeyboardMarkup(inline_keyboard=[[share_button]])
+
+        await message.reply(f"Կիսվիր ընկերոջդ հետ՝\n{referral_link}", reply_markup=keyboard)
 
 @dp.message(Command(commands=['start']))
 async def start(message: types.Message):
@@ -191,7 +196,7 @@ async def webapp_command(message: types.Message):
 
         bot_link_button = InlineKeyboardButton(text="Բացել bot-ը", url="https://t.me/GrayQuizz_bot")
         bot_link_keyboard = InlineKeyboardMarkup(inline_keyboard=[[bot_link_button]])
-
+ 
         try:
             await message.answer("🤖Սեղմեք կոճակին որպեսզի սկսեք GrayQuizz-ը:", reply_markup=keyboard)
         except Exception as e:
