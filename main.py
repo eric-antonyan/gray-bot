@@ -100,7 +100,8 @@ async def start(message: types.Message):
         await message.answer(
             f"👋👁️‍🗨️Ողջույն!\n⚡Այստեղ կարող ես ստուգել գիտելիքներդ Կիբեռանվտանգության և ՏՏ ոլորտի մասին։\n💡 Օգտագործեք /help որպեսզի տեսնեք բոլոր հրամաննները.\n\n👤ID: {user_id}\n🛂Օգտվողի անուն: @{message.from_user.username}"
         )
-
+        if referrer_id:
+            await add_referral(user_id, int(referrer_id))
         photo_url = await get_user_photo(user_id)
         user_data = {
             "id": user_id,
@@ -118,8 +119,7 @@ async def start(message: types.Message):
             logging.info(f"New user added: {user_data}")
             await message.reply(f"Դուք հաջողությամբ գրանցվեցիք հարգելի {message.from_user.first_name}")
 
-            if referrer_id:
-                await add_referral(user_id, int(referrer_id))
+
 
 @dp.message(Command(commands=['get_friends']))
 async def get_friends(message: types.Message):
@@ -141,7 +141,7 @@ async def get_friends(message: types.Message):
                 else:
                     await message.answer(f"Ձեր հղումով ոչ մի ընկեր չի գրանցվել.\n➡️ Կիսվիր այս հղումով ՝ https://t.me/GrayQuizz_Bot?start={user_id}")
             else:
-                await message.answer(f"Ձեր հղումով ոչ մի ընկեր չի գրանցվել.n➡️ Կիսվիր այս հղումով ՝ https://t.me/GrayQuizz_Bot?start={user_id}")
+                await message.answer(f"Ձեր հղումով ոչ մի ընկեր չի գրանցվել ➡️ Կիսվիր այս հղումով ՝ https://t.me/GrayQuizz_Bot?start={user_id}")
         else:
             await message.answer("User not found. Please use /start to register.")
 
