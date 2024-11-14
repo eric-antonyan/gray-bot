@@ -97,11 +97,8 @@ async def start(message: types.Message):
         await need_subscribe(message)
     else:
         last_name = message.from_user.last_name or ''
-        await message.answer(
-            f"👋👁️‍🗨️Ողջույն!\n⚡Այստեղ կարող ես ստուգել գիտելիքներդ Կիբեռանվտանգության և ՏՏ ոլորտի մասին։\n💡 Օգտագործեք /help որպեսզի տեսնեք բոլոր հրամաննները.\n\n👤ID: {user_id}\n🛂Օգտվողի անուն: @{message.from_user.username}"
-        )
-        if referrer_id:
-            await add_referral(user_id, int(referrer_id))
+
+
         photo_url = await get_user_photo(user_id)
         user_data = {
             "id": user_id,
@@ -118,8 +115,11 @@ async def start(message: types.Message):
             await collection.insert_one(user_data)
             logging.info(f"New user added: {user_data}")
             await message.reply(f"Դուք հաջողությամբ գրանցվեցիք հարգելի {message.from_user.first_name}")
-
-
+            if referrer_id:
+                await add_referral(user_id, int(referrer_id))
+        await message.answer(
+            f"👋👁️‍🗨️Ողջույն!\n⚡Այստեղ կարող ես ստուգել գիտելիքներդ Կիբեռանվտանգության և ՏՏ ոլորտի մասին։\n💡 Օգտագործեք /help որպեսզի տեսնեք բոլոր հրամաննները.\n\n👤ID: {user_id}\n🛂Օգտվողի անուն: @{message.from_user.username}"
+        )
 
 @dp.message(Command(commands=['get_friends']))
 async def get_friends(message: types.Message):
